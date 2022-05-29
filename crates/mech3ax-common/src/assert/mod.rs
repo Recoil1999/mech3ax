@@ -1,8 +1,9 @@
 use crate::string::ConversionError;
 use num_traits::AsPrimitive;
 use std::cmp::{PartialEq, PartialOrd};
-use std::fmt::{self, Debug, Display};
+use std::fmt::{self, Debug, Display, UpperHex};
 use thiserror::Error;
+use std::u32;
 
 #[derive(Error)]
 pub struct AssertionError(pub String);
@@ -25,13 +26,13 @@ pub fn is_equal_to<S, T, U>(name: S, expected: T, actual: T, pos: U) -> Result<(
 where
     S: Display,
     T: PartialEq + PartialOrd + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if actual == expected {
         Ok(())
     } else {
         let msg = format!(
-            "Expected '{}' == {:#?}, but was {:#?} (at {})",
+            "Expected '{}' == {:#?}, but was {:#?} (at {:#08X})",
             name, expected, actual, pos
         );
         Err(AssertionError(msg))
@@ -42,12 +43,12 @@ pub fn is_not_equal_to<S, T, U>(name: S, expected: T, actual: T, pos: U) -> Resu
 where
     S: Display,
     T: PartialEq + PartialOrd + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if actual != expected {
         Ok(())
     } else {
-        let msg = format!("Expected '{}' != {:#?}, but was (at {})", name, actual, pos);
+        let msg = format!("Expected '{}' != {:#?}, but was (at {:08X})", name, actual, pos);
         Err(AssertionError(msg))
     }
 }
@@ -56,13 +57,13 @@ pub fn is_less_than<S, T, U>(name: S, expected: T, actual: T, pos: U) -> Result<
 where
     S: Display,
     T: PartialEq + PartialOrd + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if actual < expected {
         Ok(())
     } else {
         let msg = format!(
-            "Expected '{}' < {:#?}, but was {:#?} (at {})",
+            "Expected '{}' < {:#?}, but was {:#?} (at {:08X})",
             name, expected, actual, pos
         );
         Err(AssertionError(msg))
@@ -73,13 +74,13 @@ pub fn is_less_than_or_equal_to<S, T, U>(name: S, expected: T, actual: T, pos: U
 where
     S: Display,
     T: PartialEq + PartialOrd + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if actual <= expected {
         Ok(())
     } else {
         let msg = format!(
-            "Expected '{}' <= {:#?}, but was {:#?} (at {})",
+            "Expected '{}' <= {:#?}, but was {:#?} (at {:08X})",
             name, expected, actual, pos
         );
         Err(AssertionError(msg))
@@ -90,13 +91,13 @@ pub fn is_greater_than<S, T, U>(name: S, expected: T, actual: T, pos: U) -> Resu
 where
     S: Display,
     T: PartialEq + PartialOrd + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if actual > expected {
         Ok(())
     } else {
         let msg = format!(
-            "Expected '{}' > {:#?}, but was {:#?} (at {})",
+            "Expected '{}' > {:#?}, but was {:#?} (at {:08X})",
             name, expected, actual, pos
         );
         Err(AssertionError(msg))
@@ -108,13 +109,13 @@ pub fn is_greater_than_or_equal_to<S, T, U>(name: S, expected: T, actual: T, pos
 where
     S: Display,
     T: PartialEq + PartialOrd + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if actual >= expected {
         Ok(())
     } else {
         let msg = format!(
-            "Expected '{}' >= {:#?}, but was {:#?} (at {})",
+            "Expected '{}' >= {:#?}, but was {:#?} (at {:08X})",
             name, expected, actual, pos
         );
         Err(AssertionError(msg))
@@ -131,13 +132,13 @@ pub fn is_between<S, T, U>(
 where
     S: Display,
     T: PartialEq + PartialOrd + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if expected_min <= actual && actual <= expected_max {
         Ok(())
     } else {
         let msg = format!(
-            "Expected {:#?} <= '{}' <= {:#?}, but was {:#?} (at {})",
+            "Expected {:#?} <= '{}' <= {:#?}, but was {:#?} (at {:08X})",
             expected_min, name, expected_max, actual, pos
         );
         Err(AssertionError(msg))
@@ -148,13 +149,13 @@ pub fn is_in<S, T, U>(name: S, haystack: &[T], needle: &T, pos: U) -> Result<()>
 where
     S: Display,
     T: PartialEq + Debug,
-    U: Display,
+    U: Display + UpperHex,
 {
     if haystack.contains(needle) {
         Ok(())
     } else {
         let msg = format!(
-            "Expected '{}' to be in {:#?}, but was {:#?} (at {})",
+            "Expected '{}' to be in {:#?}, but was {:#?} (at {:08X})",
             name, haystack, needle, pos
         );
         Err(AssertionError(msg))
@@ -164,11 +165,11 @@ where
 pub fn is_bool<S, U>(name: S, actual: u32, pos: U) -> Result<bool>
 where
     S: Display,
-    U: Display,
+    U: Display + UpperHex,
 {
     if actual > 1 {
         let msg = format!(
-            "Expected '{}' to be 0 or 1, but was {} (at {})",
+            "Expected '{}' to be 0 or 1, but was {} (at {:08X})",
             name, actual, pos
         );
         Err(AssertionError(msg))
@@ -187,18 +188,18 @@ where
         let pos = pos.as_();
         let msg = match err {
             ConversionError::PaddingError(padding) => format!(
-                "Expected '{}' to padded with {} (at {})",
+                "Expected '{}' to padded with {} (at {:08X})",
                 name, padding, pos
             ),
             ConversionError::NonAscii(index) => {
                 format!(
-                    "Expected '{}' to be a valid string (at {})",
+                    "Expected '{}' to be a valid string (at {:08X})",
                     name,
                     pos + index
                 )
             }
             ConversionError::Unterminated => {
-                format!("Expected '{}' to be zero-terminated (at {})", name, pos)
+                format!("Expected '{}' to be zero-terminated (at {:08X})", name, pos)
             }
         };
         AssertionError(msg)
@@ -208,14 +209,14 @@ where
 pub fn assert_all_zero<S, U>(name: S, pos: U, buf: &[u8]) -> Result<()>
 where
     S: Display,
-    U: Display,
+    U: Display + UpperHex,
 {
     let mut iter = buf.iter().enumerate();
 
     if let Some((index, _)) = iter.find(|(_, &v)| v != 0) {
         let value = buf[index];
         let msg = format!(
-            "Expected '{}' to be zero, but byte {} was {:02X} (at {})",
+            "Expected '{}' to be zero, but byte {} was {:02X} (at {:08X})",
             name, index, value, pos
         );
         Err(AssertionError(msg))
