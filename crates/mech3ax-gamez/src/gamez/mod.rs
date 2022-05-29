@@ -59,7 +59,7 @@ where
     let header: HeaderC = read.read_struct()?;
 
     assert_that!("signature", header.signature == SIGNATURE, 0)?;
-    assert_that!("version", header.version == VERSION_MW, 4)?;
+    assert_that!("version", header.version == VERSION_RECOIL, 4)?;
     assert_that!("texture count", header.texture_count < 4096, 8)?;
     assert_that!("node count", header.node_count < header.node_array_size, 28)?;
 
