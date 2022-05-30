@@ -11,10 +11,11 @@ struct TextureInfoC {
     zero04: u32,
     texture: [u8; 20],
     used: u32,
-    index: u32,
+    //Index not used in recoil
+    //index: u32,
     unk36: i32,
 }
-static_assert_size!(TextureInfoC, 40);
+static_assert_size!(TextureInfoC, 36);
 
 pub fn read_texture_infos<R>(read: &mut CountingReader<R>, count: u32) -> Result<Vec<String>>
 where
@@ -35,7 +36,7 @@ where
             // 1 or 3 if the texture is being processed (deallocated?)
             assert_that!("used", info.used == 2, read.prev + 28)?;
             // stores the texture's index in the global texture array
-            assert_that!("index", info.index == 0, read.prev + 32)?;
+            //assert_that!("index", info.index == 0, read.prev + 32)?;
             assert_that!("field 36", info.unk36 == -1, read.prev + 36)?;
             Ok(texture)
         })
@@ -54,7 +55,7 @@ where
             zero04: 0,
             texture,
             used: 2,
-            index: 0,
+            //index: 0,
             unk36: -1,
         })?;
     }
