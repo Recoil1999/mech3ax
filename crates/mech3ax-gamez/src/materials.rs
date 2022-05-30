@@ -79,6 +79,9 @@ pub enum RawMaterial {
 
 bitflags::bitflags! {
     struct MaterialFlags: u8 {
+        
+
+
         const TEXTURED = 1 << 0;
         const UNKNOWN = 1 << 1;
         const CYCLED = 1 << 2;
@@ -105,8 +108,11 @@ where
     let flag_always = bitflags.contains(MaterialFlags::ALWAYS);
     let flag_free = bitflags.contains(MaterialFlags::FREE);
 
-    assert_that!("flag always", flag_always == true, read.prev + 1)?;
-    assert_that!("flag free", flag_free == false, read.prev + 1)?;
+    //These flags not true of recoil. TEXTURED seems to always be the case
+    //except for the empty data in the array where all flags are 0
+    //need to check more gamez files to be certain, might just be a boolean
+    //assert_that!("flag always", flag_always == true, read.prev + 1)?;
+    //assert_that!("flag free", flag_free == false, read.prev + 1)?;
 
     assert_that!("field 20", material.unk20 == 0.0, read.prev + 20)?;
     assert_that!("field 24", material.unk24 == 0.5, read.prev + 24)?;
@@ -213,7 +219,8 @@ where
         assert_that!("field 00", material.unk00 == 0, read.prev + 0)?;
         assert_that!(
             "flag",
-            material.flags == MaterialFlags::FREE.bits(),
+            //Adjusted this as the FREE flag is not used in m1 gamez
+            material.flags != MaterialFlags::TEXTURED.bits(),
             read.prev + 1
         )?;
         assert_that!("rgb", material.rgb == 0x0000, read.prev + 2)?;
